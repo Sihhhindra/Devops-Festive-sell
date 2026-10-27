@@ -1,0 +1,16 @@
+# ─── Festival Rush — Ansible Playbook ────────────────────────────
+# Configures Jenkins server with Docker and Kubernetes tools
+
+---
+- name: Configure Festival Rush CI/CD Infrastructure
+  hosts: jenkins
+  become: yes
+
+  vars:
+    aws_region: ap-south-1
+    eks_cluster_name: festival-rush-eks
+
+  roles:
+    - docker
+    - jenkins
+    - k8s-tools

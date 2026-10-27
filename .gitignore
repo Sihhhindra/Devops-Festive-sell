@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# ─── Kubernetes secrets — NEVER commit real values ───────────────
+k8s/config.yaml
+
+# ─── Terraform state & local files ──────────────────────────────
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform/
+terraform/.terraform.tfstate.lock.info
+terraform/terraform.tfvars
+*.tfvars
+!*.tfvars.example
+
+# Build output
+client/dist/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Coverage
+coverage/
+
+# Database
+*.db
+powershell.cmd

@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # ── React Frontend ─────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: ../Dockerfile.client
+    ports:
+      - "80:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - festival-net
+    restart: unless-stopped
+
+  # ── Express Backend ────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: ../Dockerfile.server
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=festival_rush
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - festival-net
+    restart: unless-stopped
+
+  # ── PostgreSQL Database ────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=festival_rush
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - festival-net
+    restart: unless-stopped
+
+networks:
+  festival-net:
+    driver: bridge
+
+volumes:
+  pg_data:

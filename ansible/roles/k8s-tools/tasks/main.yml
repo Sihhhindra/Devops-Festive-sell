@@ -1,0 +1,30 @@
+# ─── Kubernetes Tools Installation Role ──────────────────────────
+---
+- name: Install kubectl
+  shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x kubectl
+    mv kubectl /usr/local/bin/
+  args:
+    creates: /usr/local/bin/kubectl
+
+- name: Install Helm
+  shell: |
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+
+- name: Install AWS CLI v2
+  shell: |
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+    cd /tmp && unzip -o awscliv2.zip
+    /tmp/aws/install --update
+  args:
+    creates: /usr/local/bin/aws
+
+- name: Configure kubeconfig for EKS
+  become_user: jenkins
+  shell: |
+    aws eks update-kubeconfig --region {{ aws_region }} --name {{ eks_cluster_name }}
+  environment:
+    HOME: /var/lib/jenkins

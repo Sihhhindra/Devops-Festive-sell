@@ -1,0 +1,78 @@
+# ─── Server (Express API) Deployment ─────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+  namespace: festival-rush
+  labels:
+    app: server
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: 306601824447.dkr.ecr.ap-south-1.amazonaws.com/festival-rush-server:v8
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: festival-rush-config
+            - secretRef:
+                name: festival-rush-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1001  # appuser from Dockerfile.server
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+# ─── Server Service ──────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-service
+  namespace: festival-rush
+spec:
+  type: ClusterIP
+  selector:
+    app: server
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001

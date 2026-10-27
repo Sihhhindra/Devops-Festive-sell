@@ -1,0 +1,28 @@
+# ─── ConfigMap: Non-sensitive configuration ──────────────────────
+# Copy this file to config.yaml and fill in the real base64 values.
+# Encode values with: echo -n "your-value" | base64
+# NEVER commit config.yaml — it is in .gitignore
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: festival-rush-config
+  namespace: festival-rush
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  DB_PORT: "5432"
+  DB_NAME: "festival_rush"
+---
+# ─── Secret: Sensitive values (base64 encoded) ──────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: festival-rush-secrets
+  namespace: festival-rush
+type: Opaque
+data:
+  JWT_SECRET: REPLACE_WITH_BASE64_JWT_SECRET
+  DB_PASSWORD: REPLACE_WITH_BASE64_DB_PASSWORD
+  DB_USER: REPLACE_WITH_BASE64_DB_USER
+  DB_HOST: REPLACE_WITH_BASE64_RDS_ENDPOINT
+  GROQ_API_KEY: REPLACE_WITH_BASE64_GROQ_API_KEY
